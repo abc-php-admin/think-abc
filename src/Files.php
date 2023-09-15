@@ -20,7 +20,22 @@ class Files
             } else {
                 $info = pathinfo($newpath);
                !is_dir($info["dirname"]) && mkdir($info["dirname"],0755,true);
-                (!is_link($newpath) && is_file($file->getRealPath()))  && (strtoupper(substr(PHP_OS,0,3))==='WIN' ? link($file->getRealPath(),$newpath) :symlink($file->getRealPath(),$newpath));
+               if (!is_link($newpath) && is_file($file->getRealPath())) {
+                    if (strtoupper(substr(PHP_OS,0,3))==='WIN'){
+                        link($file->getRealPath(),$newpath);
+                    }else{
+                        if (function_exists('symlink')) {
+                            if (file_exists($newpath)) {
+                                unlink($newpath);
+                            }
+                            symlink($file->getRealPath(), $newpath);
+                        } else {
+                            copy($file->getRealPath(), $newpath);
+                        }
+                    }
+                    
+                }
+               
             }
             
         }
@@ -61,6 +76,3 @@ class Files
         return true;
     }
 }
-
-        
-    
